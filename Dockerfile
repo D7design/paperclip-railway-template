@@ -27,7 +27,7 @@ ENV CLAUDE_CODE_BUBBLEWRAP=1
 # agent tooling, OpenCode, and config paths behave the same in containers.
 ENV HOME=/paperclip \
     PAPERCLIP_HOME=/paperclip \
-    CODEX_HOME=/paperclip/.codex \
+    CODEX_HOME=/data/.codex \
     PAPERCLIP_INSTANCE_ID=default \
     PAPERCLIP_CONFIG=/paperclip/instances/default/config.json \
     OPENCODE_ALLOW_ALL_MODELS=true

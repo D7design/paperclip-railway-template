@@ -126,7 +126,7 @@ function setupHtml() {
       <div class="step">
         <div class="step-num">Step 1 — AI adapters (optional)</div>
         <div class="step-title">Codex &amp; Claude (OpenAI &amp; Anthropic)</div>
-        <p class="muted" style="margin:0 0 10px 0; font-size:13px;">Only needed if you want agents to run. <strong>Codex (codex_local):</strong> copy your local <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">.codex</code> auth files into the Railway volume at <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">/paperclip/.codex</code> (especially <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">auth.json</code>), or run Codex login below. No <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">OPENAI_API_KEY</code> required. <strong>Claude:</strong> set <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">ANTHROPIC_API_KEY</code> in Railway variables. You can skip this step — the app works without agents.</p>
+        <p class="muted" style="margin:0 0 10px 0; font-size:13px;">Only needed if you want agents to run. <strong>Codex (codex_local):</strong> copy your local <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">.codex</code> auth files into the Railway volume at <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">/data/.codex</code> (especially <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">auth.json</code>), or run Codex login below. No <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">OPENAI_API_KEY</code> required. <strong>Claude:</strong> set <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">ANTHROPIC_API_KEY</code> in Railway variables. You can skip this step — the app works without agents.</p>
         <div class="adapter-statuses">
           <div class="adapter-status status-pending" id="codexStatusWrap"><span class="status-check" id="codexCheck">○</span><span id="codexStatus">Codex: checking...</span></div>
           <div class="adapter-status status-pending" id="claudeStatusWrap"><span class="status-check" id="claudeCheck">○</span><span id="claudeStatus">Claude: checking...</span></div>
@@ -194,7 +194,7 @@ function setupHtml() {
             codexStatusWrap.className = "adapter-status status-pending";
             codexCheck.textContent = "○";
             codexButtonRow.style.display = "";
-            codexStatusEl.textContent = "Codex: Not authenticated — copy auth to /paperclip/.codex or run login below";
+            codexStatusEl.textContent = "Codex: Not authenticated — copy auth to /data/.codex or run login below";
           }
           if (cl.anthropicApiKeySet) {
             claudeStatusWrap.className = "adapter-status status-ok";
@@ -299,7 +299,7 @@ function runBootstrap(baseUrl) {
 }
 
 function codexHomeDir() {
-  return process.env.CODEX_HOME || "/paperclip/.codex";
+  return process.env.CODEX_HOME || "/data/.codex";
 }
 
 function runCodexLogin() {
