@@ -55,7 +55,12 @@ COPY scripts/bootstrap-ceo.mjs /wrapper/template/bootstrap-ceo.mjs
 RUN chmod +x /wrapper/entrypoint.sh
 
 # Optional local adapters/tools parity with upstream Dockerfile.
-RUN npm install --global --include=optional @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai
+# Codex: install separately, fix bin permissions (openai/codex#9520), verify on PATH.
+RUN npm install --global --include=optional @openai/codex@latest \
+    && chmod +x "$(npm root -g)/@openai/codex/bin/codex.js" \
+    && which codex \
+    && codex --version
+RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest opencode-ai
 RUN npm install --global --omit=dev tsx
 RUN mkdir -p /paperclip \
     && chown -R node:node /app /paperclip /wrapper

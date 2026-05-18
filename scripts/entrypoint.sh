@@ -7,12 +7,9 @@ export CODEX_HOME="${CODEX_HOME:-/data/.codex}"
 # When Railway mounts a volume at /paperclip it is often not writable by the node user.
 # Create dirs Paperclip and Codex need and ensure the whole tree is owned by node.
 mkdir -p "${PAPERCLIP_HOME}/instances/default/logs"
-mkdir -p "${CODEX_HOME}"
+mkdir -p /data "${CODEX_HOME}"
 chmod 700 "${CODEX_HOME}" 2>/dev/null || true
-chown -R node:node "${PAPERCLIP_HOME}"
-if [ -d /data ]; then
-  chown -R node:node /data
-fi
+chown -R node:node "${PAPERCLIP_HOME}" /data
 
 # ---------- Fix for GitHub issue #4 ----------
 # Claude Code refuses --dangerously-skip-permissions when it detects
