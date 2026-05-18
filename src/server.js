@@ -20,6 +20,7 @@ function startPaperclip() {
     HOST: INTERNAL_HOST,
     PORT: String(INTERNAL_PORT),
     PAPERCLIP_OPEN_ON_LISTEN: "false",
+    CODEX_HOME: codexHomeDir(),
   };
   paperclipProc = spawn("tsx", ["server/dist/index.js"], {
     cwd: APP_ROOT,
@@ -302,6 +303,17 @@ function codexHomeDir() {
   return process.env.CODEX_HOME || "/data/.codex";
 }
 
+/** Create CODEX_HOME after the Railway volume is mounted (entrypoint may run too early). */
+function ensureCodexHome() {
+  const codexHome = codexHomeDir();
+  try {
+    fs.mkdirSync(codexHome, { recursive: true, mode: 0o700 });
+    console.log(`[wrapper] ensured CODEX_HOME at ${codexHome}`);
+  } catch (e) {
+    console.warn(`[wrapper] could not create CODEX_HOME (${codexHome}):`, e.message);
+  }
+}
+
 function runCodexLogin() {
   return new Promise((resolve) => {
     const child = spawn("codex", ["login"], {
@@ -419,6 +431,7 @@ server.on("upgrade", (req, socket, head) => {
   proxy.ws(req, socket, head);
 });
 
+ensureCodexHome();
 startPaperclip();
 
 const shutdown = () => {
