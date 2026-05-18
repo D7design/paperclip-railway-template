@@ -33,8 +33,8 @@ https://railway.com/deploy/KJZc89?referralCode=uXzB-u&utm_medium=integration&utm
 1. Open your app’s public URL (e.g. `https://your-app.up.railway.app`).
 2. Go to **`/setup`** (e.g. `https://your-app.up.railway.app/setup`).
 3. (Optional) If you want AI agents immediately, complete Step 1 on setup:
-   - set `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in Railway variables
-   - run Codex login from setup (Claude uses `ANTHROPIC_API_KEY` directly)
+   - **Codex (`codex_local`):** copy your local `.codex` auth files (e.g. `auth.json`) into the Railway volume at `/paperclip/.codex`, or run Codex login from `/setup` — no `OPENAI_API_KEY` required
+   - **Claude:** set `ANTHROPIC_API_KEY` in Railway variables
 4. Click **“Generate admin invite URL”**. The page will show a one-time invite link.
 5. Open that link in your browser and complete sign-up. That account is the first admin.
 6. From then on, use the app at **`/`** — log in with that admin (or with users you invite later).
@@ -53,6 +53,7 @@ Set these on the **Paperclip** service in Railway (template editor or service Va
 | `PORT` | `3100` | Port the app listens on (must match the proxy). |
 | `SERVE_UI` | `true` | Serve the web UI. |
 | `PAPERCLIP_HOME` | `/paperclip` | Data directory; must match the volume mount path. |
+| `CODEX_HOME` | `/paperclip/.codex` | Codex CLI auth and state on the Railway volume (for `codex_local`). |
 | `PAPERCLIP_DEPLOYMENT_MODE` | `authenticated` | Require login (recommended). |
 | `PAPERCLIP_DEPLOYMENT_EXPOSURE` | `private` | Treat the app as private (recommended). |
 | `PAPERCLIP_PUBLIC_URL` | `https://${{Paperclip.RAILWAY_PUBLIC_DOMAIN}}` | Public URL of the app (no trailing slash). Railway’s public domain for this service. |
@@ -60,7 +61,7 @@ Set these on the **Paperclip** service in Railway (template editor or service Va
 
 Optional (for AI agents):
 
-- **`OPENAI_API_KEY`** — If set, the wrapper runs Codex login at startup so agents using the Codex adapter work. You can also run Codex login from the setup page. Without it, the app and dashboard work; agents that use Codex will fail until the key is set and login is run.
+- **`CODEX_HOME`** — Defaults to `/paperclip/.codex` on the Railway volume. The **`codex_local`** adapter uses the Codex CLI (`codex`) with auth files here (e.g. `auth.json`). Copy them from your machine after `codex login` locally, or use **Run Codex login** on `/setup`. No `OPENAI_API_KEY` is required.
 
 - **`ANTHROPIC_API_KEY`** — Used by the Claude adapter. Optional; add when you want Claude-based agents.
 

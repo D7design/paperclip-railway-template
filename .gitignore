@@ -1,0 +1,11 @@
+# Local env (never commit secrets)
+.env
+.env.local
+
+# Codex CLI auth and runtime data (copy to Railway volume only)
+.codex/
+**/.codex/
+auth.json
+**/auth.json
+*.sqlite
+*.sqlite3

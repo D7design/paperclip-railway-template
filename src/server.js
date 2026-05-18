@@ -126,7 +126,7 @@ function setupHtml() {
       <div class="step">
         <div class="step-num">Step 1 — AI adapters (optional)</div>
         <div class="step-title">Codex &amp; Claude (OpenAI &amp; Anthropic)</div>
-        <p class="muted" style="margin:0 0 10px 0; font-size:13px;">Only needed if you want agents to run. Set <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">OPENAI_API_KEY</code> and/or <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">ANTHROPIC_API_KEY</code> in Railway variables. Codex requires a one-time login below; Claude uses the env key automatically. You can skip this and add keys later — the app works without them; agents will fail until keys are set.</p>
+        <p class="muted" style="margin:0 0 10px 0; font-size:13px;">Only needed if you want agents to run. <strong>Codex (codex_local):</strong> copy your local <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">.codex</code> auth files into the Railway volume at <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">/paperclip/.codex</code> (especially <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">auth.json</code>), or run Codex login below. No <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">OPENAI_API_KEY</code> required. <strong>Claude:</strong> set <code style="background:#1a1a1a; padding:2px 6px; border-radius:4px;">ANTHROPIC_API_KEY</code> in Railway variables. You can skip this step — the app works without agents.</p>
         <div class="adapter-statuses">
           <div class="adapter-status status-pending" id="codexStatusWrap"><span class="status-check" id="codexCheck">○</span><span id="codexStatus">Codex: checking...</span></div>
           <div class="adapter-status status-pending" id="claudeStatusWrap"><span class="status-check" id="claudeCheck">○</span><span id="claudeStatus">Claude: checking...</span></div>
@@ -194,11 +194,7 @@ function setupHtml() {
             codexStatusWrap.className = "adapter-status status-pending";
             codexCheck.textContent = "○";
             codexButtonRow.style.display = "";
-            if (cx.openaiApiKeySet) {
-              codexStatusEl.textContent = "Codex: Not authenticated — run login below";
-            } else {
-              codexStatusEl.textContent = "Codex: Set OPENAI_API_KEY in Railway, then run login";
-            }
+            codexStatusEl.textContent = "Codex: Not authenticated — copy auth to /paperclip/.codex or run login below";
           }
           if (cl.anthropicApiKeySet) {
             claudeStatusWrap.className = "adapter-status status-ok";
@@ -302,18 +298,15 @@ function runBootstrap(baseUrl) {
   });
 }
 
+function codexHomeDir() {
+  return process.env.CODEX_HOME || "/paperclip/.codex";
+}
+
 function runCodexLogin() {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
-    return Promise.resolve({
-      ok: false,
-      output: "OPENAI_API_KEY is not set. Add it in Railway service variables, then run this again.",
-    });
-  }
   return new Promise((resolve) => {
-    const child = spawn("codex", ["login", "--with-api-key"], {
-      env: process.env,
-      stdio: ["pipe", "pipe", "pipe"],
+    const child = spawn("codex", ["login"], {
+      env: { ...process.env, CODEX_HOME: codexHomeDir() },
+      stdio: ["ignore", "pipe", "pipe"],
     });
     let out = "";
     let err = "";
@@ -325,9 +318,6 @@ function runCodexLogin() {
     });
     child.on("error", (e) => {
       resolve({ ok: false, output: `Failed to run codex: ${e.message}` });
-    });
-    child.stdin.write(apiKey, "utf8", () => {
-      child.stdin.end();
     });
   });
 }
@@ -381,11 +371,10 @@ app.post("/setup/api/bootstrap", async (req, res) => {
 });
 
 function getCodexStatus() {
-  const codexHome = process.env.CODEX_HOME || path.join(process.env.HOME || "/home/node", ".codex");
+  const codexHome = codexHomeDir();
   const authPath = path.join(codexHome, "auth.json");
   const codexAuthenticated = fs.existsSync(authPath);
-  const openaiApiKeySet = Boolean(process.env.OPENAI_API_KEY?.trim());
-  return { codexAuthenticated, openaiApiKeySet };
+  return { codexAuthenticated, codexHome };
 }
 
 function getClaudeStatus() {
@@ -431,16 +420,6 @@ server.on("upgrade", (req, socket, head) => {
 });
 
 startPaperclip();
-
-// If OPENAI_API_KEY is set, authenticate Codex at startup so agents work without visiting /setup
-if (process.env.OPENAI_API_KEY?.trim()) {
-  runCodexLogin()
-    .then((r) => {
-      if (r.ok) console.log("[wrapper] Codex login succeeded (OPENAI_API_KEY)");
-      else console.warn("[wrapper] Codex login failed:", r.output);
-    })
-    .catch((e) => console.warn("[wrapper] Codex login error:", e.message));
-}
 
 const shutdown = () => {
   if (paperclipProc) {
