@@ -55,7 +55,7 @@ COPY scripts/bootstrap-ceo.mjs /wrapper/template/bootstrap-ceo.mjs
 RUN chmod +x /wrapper/entrypoint.sh
 
 # Optional local adapters/tools parity with upstream Dockerfile.
-RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai
+RUN npm install --global --include=optional @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai
 RUN npm install --global --omit=dev tsx
 RUN mkdir -p /paperclip \
     && chown -R node:node /app /paperclip /wrapper
@@ -64,4 +64,4 @@ RUN mkdir -p /paperclip \
 # Entrypoint runs as root, fixes /paperclip volume permissions, then execs as node.
 EXPOSE 3100
 ENTRYPOINT ["/wrapper/entrypoint.sh"]
-CMD ["node", "/wrapper/src/server.js"]
+CMD ["sh", "-c", "mkdir -p /data/.codex && node /wrapper/src/server.js"]
