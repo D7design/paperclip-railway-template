@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "mkdir -p /data/.codex && node /wrapper/src/server.js"
+startCommand = "node /wrapper/src/server.js"
 healthcheckPath = "/setup/healthz"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
