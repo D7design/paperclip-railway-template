@@ -66,6 +66,13 @@ RUN chmod +x /wrapper/entrypoint.sh
 RUN npm install --global --include=optional @openai/codex@latest
 RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest opencode-ai
 RUN npm install --global --omit=dev tsx
+# Cursor CLI for Paperclip `cursor` adapter (auth via CURSOR_API_KEY or agent login).
+RUN curl https://cursor.com/install -fsS | bash \
+    && install -m 755 /root/.local/bin/agent /usr/local/bin/agent \
+    && (test -x /root/.local/bin/cursor-agent \
+        && install -m 755 /root/.local/bin/cursor-agent /usr/local/bin/cursor-agent \
+        || true) \
+    && agent --version
 RUN mkdir -p /paperclip \
     && chown -R node:node /app /paperclip /wrapper
 
