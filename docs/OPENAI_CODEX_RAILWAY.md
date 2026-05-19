@@ -4,6 +4,8 @@ Diese Anleitung beschreibt, wie Paperclip auf Railway mit dem **OpenAI Codex CLI
 
 Die Authentifizierung läuft über **Codex-Login-Dateien** (insbesondere `auth.json`) auf einem **persistenten Railway-Volume**.
 
+**Auth erneuern (kurz):** [CODEX_AUTH_SCHNELL_ERNEUERN.md](CODEX_AUTH_SCHNELL_ERNEUERN.md).
+
 ---
 
 ## Zielbild
@@ -286,6 +288,17 @@ git merge upstream/main
 # Konflikte in Dockerfile, entrypoint.sh, server.js manuell lösen (Codex-Pfade behalten)
 git push origin main
 ```
+
+---
+
+## GitHub CLI (`gh`) im Container — PRs durch Coding-Agenten
+
+Das [Paperclip How-To „Connect an agent to a GitHub repo…“](https://docs.paperclip.ing/#/how-to/connect-agent-to-github/connect-an-agent-to-a-github-repo-and-have-it-open-prs) benötigt die **GitHub CLI** (`gh pr create`). Dieses Template installiert **`gh`** im Runtime-Image (Debian APT: [GitHub CLI](https://cli.github.com/)).
+
+Damit **`git push`** und **`gh`** auf Railway funktionieren:
+
+- Tokens **nicht** per `gh auth login` im Container erwarten → **Fine-grained PAT** oder **GitHub App**, als **Paperclip Secrets** gebunden auf `GITHUB_TOKEN` und `GH_TOKEN` im Coding-Agent (`secret_ref`; siehe externes How-To).
+- **`cwd`** / Worktree-Pfade müssen für den **Linux-Pfad im Container** (z. B. unter **`/paperclip`**) gesetzt sein, nicht mit macOS-Pfaden aus der Doku 1:1 kopieren.
 
 ---
 

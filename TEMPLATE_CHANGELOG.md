@@ -1,5 +1,9 @@
 # Template Changelog
 
+## 2026-05-19
+
+- Added: GitHub CLI (`gh`) to the runtime image via [official apt repository](https://cli.github.com/) so coding agents (`codex_local` / `claude_local`) can open PRs on Railway per [Paperclip GitHub workflow docs](https://docs.paperclip.ing/#/how-to/connect-agent-to-github/connect-an-agent-to-a-github-repo-and-have-it-open-prs) — PAT/GitHub App still configured in Paperclip (secrets / adapter `env`), not only in Docker.
+
 ## 2026-04-17
 
 - Fixed: WebSocket proxy upstream errors no longer crash the Node process (#6, duplicate #7) — `http-proxy` can pass a socket on WS failures, which has no `writeHead`; the wrapper now sends JSON 503 only for HTTP responses and destroys the socket otherwise.
