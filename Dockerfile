@@ -67,13 +67,20 @@ RUN npm install --global --include=optional @openai/codex@latest
 RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest opencode-ai
 RUN npm install --global --omit=dev tsx
 # Cursor CLI for Paperclip `cursor` adapter (auth via CURSOR_API_KEY or agent login).
-# Install with HOME=/root: ENV HOME=/paperclip above would put binaries under /paperclip/.local.
-RUN HOME=/root bash -c 'curl https://cursor.com/install -fsS | bash' \
-    && AGENT_BIN="$(find /root/.local/share/cursor-agent/versions -name cursor-agent -type f | head -1)" \
-    && test -n "$AGENT_BIN" \
-    && install -m 755 "$AGENT_BIN" /usr/local/bin/agent \
-    && ln -sf agent /usr/local/bin/cursor-agent \
-    && /usr/local/bin/agent --version
+# Full package required (bundled node + JS chunks); do not copy cursor-agent alone.
+ARG CURSOR_AGENT_VERSION=2026.05.16-0338208
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in \
+      amd64) CURSOR_ARCH=x64 ;; \
+      arm64) CURSOR_ARCH=arm64 ;; \
+      *) echo "Unsupported architecture for Cursor CLI" >&2; exit 1 ;; \
+    esac; \
+    mkdir -p /opt/cursor-agent; \
+    curl -fSL "https://downloads.cursor.com/lab/${CURSOR_AGENT_VERSION}/linux/${CURSOR_ARCH}/agent-cli-package.tar.gz" \
+      | tar -xzf - -C /opt/cursor-agent --strip-components=1; \
+    test -x /opt/cursor-agent/cursor-agent; \
+    ln -sf /opt/cursor-agent/cursor-agent /usr/local/bin/agent; \
+    ln -sf /opt/cursor-agent/cursor-agent /usr/local/bin/cursor-agent
 RUN mkdir -p /paperclip \
     && chown -R node:node /app /paperclip /wrapper
 
