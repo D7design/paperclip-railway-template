@@ -1,5 +1,9 @@
 # Template Changelog
 
+## 2026-05-27
+
+- Changed: Paperclip pin `v2026.416.0` → `v2026.525.0` (routine upstream uptake). Template Codex auth (`CODEX_HOME=/data/.codex`, wrapper `/setup`, volume `auth.json`) unchanged. **Upgrade note:** if `codex_local` fails after redeploy, re-run Codex login (see [CODEX_AUTH_SCHNELL_ERNEUERN.md](docs/CODEX_AUTH_SCHNELL_ERNEUERN.md)); Codex CLI ≥ 0.122 may use an updated `auth.json` format per [v2026.512.0](https://github.com/paperclipai/paperclip/releases/tag/v2026.512.0). Release: [v2026.525.0](https://github.com/paperclipai/paperclip/releases/tag/v2026.525.0).
+
 ## 2026-05-19
 
 - Added: GitHub CLI (`gh`) to the runtime image via [official apt repository](https://cli.github.com/) so coding agents (`codex_local` / `claude_local`) can open PRs on Railway per [Paperclip GitHub workflow docs](https://docs.paperclip.ing/#/how-to/connect-agent-to-github/connect-an-agent-to-a-github-repo-and-have-it-open-prs) — PAT/GitHub App still configured in Paperclip (secrets / adapter `env`), not only in Docker.
